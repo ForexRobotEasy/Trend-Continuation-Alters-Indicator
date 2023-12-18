@@ -1,0 +1,111 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                       Trend Continuation Alters  |
+//|                        Indicator Code Development                |
+//|                                                forexroboteasy.com|
+//|                                                  Forex Robot Easy|
+//+------------------------------------------------------------------+
+
+// Indicator parameters
+input color ArrowColor = clrBlue;       // Color of the buy and sell arrows
+input int ArrowSize = 7;                // Size of the buy and sell arrows
+input int ArrowStyle = STYLE_SOLID;     // Style of the buy and sell arrows
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Add the indicator to the chart
+    ChartIndicatorAdd(0, iCustom(_Symbol, _Period, 'TrendContinuationAlters'));
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Loop through the bars
+    for (int i = prev_calculated; i < rates_total; i++)
+    {
+        // Check for trend continuation signal
+        if (IsTrendContinuationSignal(i))
+        {
+            // Generate buy or sell arrow
+            if (IsBuySignal(i))
+                ChartArrowAdd(0, time[i], high[i], 'Buy', ArrowColor, ArrowSize, ArrowStyle);
+            else if (IsSellSignal(i))
+                ChartArrowAdd(0, time[i], low[i], 'Sell', ArrowColor, ArrowSize, ArrowStyle);
+
+            // Send alert
+            SendAlert(time[i], IsBuySignal(i), IsSellSignal(i));
+        }
+    }
+
+    return(rates_total);
+}
+
+//+------------------------------------------------------------------+
+//| Check for trend continuation signal                              |
+//+------------------------------------------------------------------+
+bool IsTrendContinuationSignal(const int index)
+{
+    // Add your logic for identifying trend continuation signals here
+    return(true);
+}
+
+//+------------------------------------------------------------------+
+//| Check for buy signal                                             |
+//+------------------------------------------------------------------+
+bool IsBuySignal(const int index)
+{
+    // Add your logic for identifying buy signals here
+    return(true);
+}
+
+//+------------------------------------------------------------------+
+//| Check for sell signal                                            |
+//+------------------------------------------------------------------+
+bool IsSellSignal(const int index)
+{
+    // Add your logic for identifying sell signals here
+    return(true);
+}
+
+//+------------------------------------------------------------------+
+//| Send alert function                                              |
+//+------------------------------------------------------------------+
+void SendAlert(const datetime alertTime, const bool isBuySignal, const bool isSellSignal)
+{
+    // Add your code for sending alerts here
+    // Include relevant information in the alert
+    string currencyPair = Symbol();
+    string timeFrame = EnumToString(Period());
+    string alertReason = 'Trend Continuation Signal';
+
+    // Example of sending an email alert
+    string subject = 'Trend Continuation Alert';
+    string message = 'Currency Pair: ' + currencyPair + '\nTime Frame: ' + timeFrame + '\nAlert Reason: ' + alertReason;
+
+    SendMail('your-email@example.com', subject, message);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Remove the indicator from the chart
+    ChartIndicatorDelete(0);
+}
